@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles, Paperclip, Image, Send, Minus } from "lucide-react";
+import { X, Sparkles, Paperclip, Image, ArrowUp, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ComposeModalProps {
@@ -20,85 +20,77 @@ export function ComposeModal({ open, onClose }: ComposeModalProps) {
     <AnimatePresence>
       {open && (
         <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.95 }}
+          initial={{ opacity: 0, y: 30, scale: 0.97 }}
           animate={
             minimized
-              ? { opacity: 1, y: 0, scale: 1, height: 48 }
+              ? { opacity: 1, y: 0, scale: 1, height: 44 }
               : { opacity: 1, y: 0, scale: 1, height: "auto" }
           }
-          exit={{ opacity: 0, y: 40, scale: 0.95 }}
-          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+          exit={{ opacity: 0, y: 30, scale: 0.97 }}
+          transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
           className={cn(
-            "fixed bottom-4 right-6 z-50 w-[520px]",
-            "glass rounded-2xl",
-            "shadow-2xl shadow-black/40",
-            "neon-glow",
-            "flex flex-col overflow-hidden"
+            "fixed bottom-4 right-5 z-50 w-[480px]",
+            "overflow-hidden rounded-xl border border-border bg-[#1c1d21]",
+            "shadow-2xl shadow-black/50",
+            "flex flex-col"
           )}
         >
-          {/* Title Bar — draggable look */}
-          <div
-            className={cn(
-              "flex items-center justify-between px-4 py-3",
-              "border-b border-glass-border",
-              "bg-gradient-to-r from-[oklch(0.12_0.02_270)] to-[oklch(0.1_0.015_300)]",
-              "cursor-grab active:cursor-grabbing"
-            )}
-          >
-            <span className="text-sm font-semibold text-foreground">
+          {/* Title bar */}
+          <div className="flex items-center justify-between bg-[#191a1e] px-4 py-2.5">
+            <span className="text-[13px] font-medium text-foreground">
               New Message
             </span>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               <button
                 onClick={() => setMinimized(!minimized)}
-                className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                className="rounded p-1 text-muted-foreground transition-colors duration-150 hover:bg-white/[0.06] hover:text-foreground"
               >
-                <Minus className="h-4 w-4" />
+                <Minus className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={onClose}
-                className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
+                className="rounded p-1 text-muted-foreground transition-colors duration-150 hover:bg-white/[0.06] hover:text-foreground"
               >
-                <X className="h-4 w-4" />
+                <X className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
 
-          {/* Form Content */}
+          {/* Form */}
           <AnimatePresence>
             {!minimized && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
+                transition={{ duration: 0.12 }}
                 className="flex flex-col"
               >
                 {/* To */}
-                <div className="flex items-center border-b border-border/50 px-4 py-2">
-                  <span className="mr-3 text-xs font-medium text-muted-foreground">
+                <div className="flex items-center border-b border-border px-4 py-2">
+                  <span className="mr-3 text-[12px] text-muted-foreground">
                     To
                   </span>
                   <input
                     type="email"
                     value={to}
                     onChange={(e) => setTo(e.target.value)}
-                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
+                    className="flex-1 bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
                     placeholder="recipient@email.com"
                   />
                 </div>
 
                 {/* Subject */}
-                <div className="flex items-center border-b border-border/50 px-4 py-2">
-                  <span className="mr-3 text-xs font-medium text-muted-foreground">
+                <div className="flex items-center border-b border-border px-4 py-2">
+                  <span className="mr-3 text-[12px] text-muted-foreground">
                     Subject
                   </span>
                   <input
                     type="text"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
-                    placeholder="What's this about?"
+                    className="flex-1 bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                    placeholder="Subject"
                   />
                 </div>
 
@@ -107,52 +99,38 @@ export function ComposeModal({ open, onClose }: ComposeModalProps) {
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
                   rows={8}
-                  className="flex-1 resize-none bg-transparent px-4 py-3 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
+                  className="flex-1 resize-none bg-transparent px-4 py-3 text-[13px] leading-relaxed text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
                   placeholder="Write your message..."
                 />
 
-                {/* AI Auto-Reply Button */}
+                {/* AI button */}
                 <div className="px-4 pb-3">
-                  <motion.button
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
+                  <button
                     className={cn(
-                      "flex w-full items-center justify-center gap-2 rounded-xl py-3",
-                      "animate-shimmer bg-gradient-to-r from-[oklch(0.65_0.2_270)] via-[oklch(0.7_0.22_300)] to-[oklch(0.65_0.2_270)]",
-                      "text-sm font-bold text-white",
-                      "neon-glow-strong",
-                      "transition-all hover:brightness-110"
+                      "flex w-full items-center justify-center gap-2 rounded-lg py-2.5",
+                      "bg-gradient-to-r from-blue-600/90 to-indigo-600/90",
+                      "text-[13px] font-medium text-white",
+                      "transition-opacity hover:opacity-90"
                     )}
                   >
-                    <Sparkles className="h-5 w-5" />
+                    <Sparkles className="h-4 w-4" />
                     Auto-Reply in My Tone
-                  </motion.button>
+                  </button>
                 </div>
 
-                {/* Bottom Bar */}
-                <div className="flex items-center justify-between border-t border-border/50 px-4 py-2.5">
-                  <div className="flex items-center gap-1">
-                    <button className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
-                      <Paperclip className="h-4 w-4" />
+                {/* Bottom bar */}
+                <div className="flex items-center justify-between border-t border-border px-4 py-2">
+                  <div className="flex items-center gap-0.5">
+                    <button className="rounded-md p-1.5 text-muted-foreground transition-colors duration-150 hover:bg-white/[0.04] hover:text-foreground">
+                      <Paperclip className="h-4 w-4" strokeWidth={1.8} />
                     </button>
-                    <button className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
-                      <Image className="h-4 w-4" />
+                    <button className="rounded-md p-1.5 text-muted-foreground transition-colors duration-150 hover:bg-white/[0.04] hover:text-foreground">
+                      <Image className="h-4 w-4" strokeWidth={1.8} />
                     </button>
                   </div>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={cn(
-                      "flex items-center gap-2 rounded-xl px-5 py-2",
-                      "bg-primary text-primary-foreground",
-                      "text-sm font-semibold",
-                      "shadow-lg shadow-primary/20",
-                      "transition-shadow hover:shadow-primary/40"
-                    )}
-                  >
-                    <Send className="h-4 w-4" />
-                    Send
-                  </motion.button>
+                  <button className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background transition-opacity hover:opacity-90">
+                    <ArrowUp className="h-4 w-4" strokeWidth={2.5} />
+                  </button>
                 </div>
               </motion.div>
             )}

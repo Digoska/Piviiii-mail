@@ -22,11 +22,11 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { icon: Inbox, label: "Inbox", count: 12, active: true },
+  { icon: Inbox, label: "Inbox", count: 12 },
   { icon: Send, label: "Sent", count: 0 },
   { icon: FileEdit, label: "Drafts", count: 3 },
   { icon: Users, label: "Shared", count: 5 },
-  { icon: Sparkles, label: "AI Insights", count: 0, special: true },
+  { icon: Sparkles, label: "AI Insights", count: 0 },
 ];
 
 export function Sidebar({ collapsed, onToggle, onCompose }: SidebarProps) {
@@ -34,149 +34,126 @@ export function Sidebar({ collapsed, onToggle, onCompose }: SidebarProps) {
 
   return (
     <motion.aside
-      animate={{ width: collapsed ? 72 : 260 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className={cn(
-        "relative flex h-full flex-col border-r border-border bg-sidebar",
-        "backdrop-blur-xl"
-      )}
+      animate={{ width: collapsed ? 64 : 240 }}
+      transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+      className="relative flex h-full flex-col border-r border-border bg-sidebar"
     >
-      {/* Logo */}
-      <div className="flex h-16 items-center gap-3 border-b border-border px-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[oklch(0.7_0.18_270)] to-[oklch(0.6_0.25_300)] neon-glow">
-          <Sparkles className="h-5 w-5 text-white" />
+      {/* Brand */}
+      <div className="flex h-14 items-center gap-2.5 px-4">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-foreground">
+          <span className="font-serif text-sm italic text-background">N</span>
         </div>
         <AnimatePresence>
           {!collapsed && (
             <motion.div
-              initial={{ opacity: 0, x: -10 }}
+              initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
+              exit={{ opacity: 0, x: -8 }}
               transition={{ duration: 0.15 }}
+              className="flex items-baseline gap-1.5"
             >
-              <h1 className="gradient-text text-lg font-bold tracking-tight">
-                NikodemMail
+              <h1 className="font-serif text-lg italic tracking-tight text-foreground">
+                Nikodem
               </h1>
-              <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-                AI Powered
-              </p>
+              <span className="text-[10px] font-medium tracking-wide text-muted-foreground">
+                MAIL
+              </span>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Compose Button */}
-      <div className="p-3">
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+      {/* Compose */}
+      <div className="px-3 pb-1 pt-2">
+        <button
           onClick={onCompose}
           className={cn(
-            "flex w-full items-center justify-center gap-2 rounded-xl",
-            "bg-gradient-to-r from-[oklch(0.7_0.18_270)] to-[oklch(0.6_0.25_300)]",
-            "px-4 py-2.5 text-sm font-semibold text-white",
-            "shadow-lg shadow-[oklch(0.7_0.18_270_/_20%)]",
-            "transition-shadow hover:shadow-[oklch(0.7_0.18_270_/_40%)]",
-            collapsed && "px-2"
+            "flex w-full items-center justify-center gap-2 rounded-lg",
+            "bg-foreground px-3 py-2 text-[13px] font-medium text-background",
+            "transition-opacity hover:opacity-90",
+            collapsed && "px-0"
           )}
         >
-          <Plus className="h-4 w-4 shrink-0" />
+          <Plus className="h-4 w-4 shrink-0" strokeWidth={2} />
           <AnimatePresence>
             {!collapsed && (
               <motion.span
                 initial={{ opacity: 0, width: 0 }}
                 animate={{ opacity: 1, width: "auto" }}
                 exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.15 }}
+                transition={{ duration: 0.12 }}
                 className="overflow-hidden whitespace-nowrap"
               >
                 Compose
               </motion.span>
             )}
           </AnimatePresence>
-        </motion.button>
+        </button>
       </div>
 
-      {/* Nav Items */}
-      <nav className="flex-1 space-y-1 px-3">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeItem === item.label;
+      {/* Navigation */}
+      <nav className="mt-3 flex-1 space-y-0.5 px-2">
+        {navItems.map((navItem) => {
+          const Icon = navItem.icon;
+          const isActive = activeItem === navItem.label;
           return (
-            <motion.button
-              key={item.label}
-              onClick={() => setActiveItem(item.label)}
-              whileHover={{ x: 2 }}
+            <button
+              key={navItem.label}
+              onClick={() => setActiveItem(navItem.label)}
               className={cn(
-                "group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                "group relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-[7px] text-[13px] transition-colors duration-150",
                 isActive
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
-                item.special && "text-[oklch(0.75_0.2_270)]"
+                  ? "bg-white/[0.08] font-medium text-foreground"
+                  : "text-sidebar-foreground hover:bg-white/[0.04] hover:text-foreground"
               )}
             >
-              {isActive && (
-                <motion.div
-                  layoutId="sidebar-active"
-                  className="absolute inset-0 rounded-xl bg-accent"
-                  transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                />
-              )}
-              <Icon
-                className={cn(
-                  "relative z-10 h-4.5 w-4.5 shrink-0",
-                  item.special && "text-[oklch(0.75_0.2_270)]"
-                )}
-              />
+              <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} />
               <AnimatePresence>
                 {!collapsed && (
                   <motion.span
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="relative z-10 flex-1 text-left"
+                    transition={{ duration: 0.12 }}
+                    className="flex-1 text-left"
                   >
-                    {item.label}
+                    {navItem.label}
                   </motion.span>
                 )}
               </AnimatePresence>
-              {!collapsed && item.count !== undefined && item.count > 0 && (
-                <motion.span
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.5 }}
+              {!collapsed && navItem.count > 0 && (
+                <span
                   className={cn(
-                    "relative z-10 rounded-full px-2 py-0.5 text-xs font-semibold",
+                    "min-w-[20px] text-right text-xs tabular-nums",
                     isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground"
+                      ? "text-foreground/60"
+                      : "text-muted-foreground"
                   )}
                 >
-                  {item.count}
-                </motion.span>
+                  {navItem.count}
+                </span>
               )}
-            </motion.button>
+            </button>
           );
         })}
       </nav>
 
-      {/* Settings / Collapse */}
-      <div className="border-t border-border p-3">
+      {/* Footer */}
+      <div className="border-t border-border px-2 py-2">
         {!collapsed && (
-          <button className="mb-2 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground">
-            <Settings className="h-4.5 w-4.5" />
+          <button className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-[7px] text-[13px] text-sidebar-foreground transition-colors duration-150 hover:bg-white/[0.04] hover:text-foreground">
+            <Settings className="h-[18px] w-[18px]" strokeWidth={1.8} />
             <span>Settings</span>
           </button>
         )}
         <button
           onClick={onToggle}
-          className="flex w-full items-center justify-center rounded-xl p-2 text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+          className="flex w-full items-center justify-center rounded-md p-2 text-muted-foreground transition-colors duration-150 hover:bg-white/[0.04] hover:text-foreground"
         >
           {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4" strokeWidth={1.8} />
           ) : (
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4" strokeWidth={1.8} />
           )}
         </button>
       </div>
