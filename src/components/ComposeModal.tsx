@@ -2,19 +2,76 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles, Paperclip, Image, ArrowUp, Minus } from "lucide-react";
+import { X, Sparkles, Paperclip, Image, ArrowUp, Minus, Loader2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import type { Profile } from "@/types/database";
 
 interface ComposeModalProps {
   open: boolean;
   onClose: () => void;
+  currentProfile: Profile;
+  onSent: () => void;
 }
 
-export function ComposeModal({ open, onClose }: ComposeModalProps) {
+export function ComposeModal({ open, onClose, currentProfile, onSent }: ComposeModalProps) {
   const [to, setTo] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [minimized, setMinimized] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSend() {
+    if (!to.trim()) {
+      setError("Enter a recipient");
+      return;
+    }
+
+    setError("");
+    setSending(true);
+
+    const supabase = createClient();
+
+    // Resolve recipient username — strip @pivi.mail if present
+    const recipientUsername = to
+      .trim()
+      .toLowerCase()
+      .replace(/@pivi\.mail$/, "");
+
+    const { data: recipient } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("username", recipientUsername)
+      .single();
+
+    if (!recipient) {
+      setError(`User "${recipientUsername}@pivi.mail" not found`);
+      setSending(false);
+      return;
+    }
+
+    const { error: insertErr } = await supabase.from("emails").insert({
+      from_id: currentProfile.id,
+      to_id: recipient.id,
+      subject: subject.trim(),
+      body: body.trim(),
+    });
+
+    if (insertErr) {
+      setError(insertErr.message);
+      setSending(false);
+      return;
+    }
+
+    // Success — reset and close
+    setTo("");
+    setSubject("");
+    setBody("");
+    setSending(false);
+    onSent();
+    onClose();
+  }
 
   return (
     <AnimatePresence>
@@ -72,11 +129,11 @@ export function ComposeModal({ open, onClose }: ComposeModalProps) {
                     To
                   </span>
                   <input
-                    type="email"
+                    type="text"
                     value={to}
                     onChange={(e) => setTo(e.target.value)}
                     className="flex-1 bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
-                    placeholder="recipient@email.com"
+                    placeholder="username or username@pivi.mail"
                   />
                 </div>
 
@@ -103,6 +160,13 @@ export function ComposeModal({ open, onClose }: ComposeModalProps) {
                   placeholder="Write your message..."
                 />
 
+                {/* Error */}
+                {error && (
+                  <div className="px-4 pb-2">
+                    <p className="text-[12px] text-red-400">{error}</p>
+                  </div>
+                )}
+
                 {/* AI button */}
                 <div className="px-4 pb-3">
                   <button
@@ -128,8 +192,16 @@ export function ComposeModal({ open, onClose }: ComposeModalProps) {
                       <Image className="h-4 w-4" strokeWidth={1.8} />
                     </button>
                   </div>
-                  <button className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background transition-opacity hover:opacity-90">
-                    <ArrowUp className="h-4 w-4" strokeWidth={2.5} />
+                  <button
+                    onClick={handleSend}
+                    disabled={sending}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+                  >
+                    {sending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <ArrowUp className="h-4 w-4" strokeWidth={2.5} />
+                    )}
                   </button>
                 </div>
               </motion.div>

@@ -1,9 +1,22 @@
 "use client";
 
-import { Search, Bell, Command } from "lucide-react";
+import { Search, Bell, Command, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import type { Profile } from "@/types/database";
 
-export function Header() {
+interface HeaderProps {
+  profile: Profile;
+  onSignOut: () => void;
+}
+
+export function Header({ profile, onSignOut }: HeaderProps) {
+  const initials = profile.display_name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
     <header className="flex h-12 items-center justify-between border-b border-border px-5">
       {/* Search */}
@@ -23,15 +36,26 @@ export function Header() {
 
       {/* Right */}
       <div className="flex items-center gap-3">
+        <span className="hidden text-[12px] text-muted-foreground sm:block">
+          {profile.username}@pivi.mail
+        </span>
+
         <button className="relative rounded-md p-1.5 text-muted-foreground transition-colors duration-150 hover:bg-white/[0.04] hover:text-foreground">
           <Bell className="h-[16px] w-[16px]" strokeWidth={1.8} />
-          <span className="absolute right-1 top-1 h-[6px] w-[6px] rounded-full bg-blue-500" />
+        </button>
+
+        <button
+          onClick={onSignOut}
+          className="rounded-md p-1.5 text-muted-foreground transition-colors duration-150 hover:bg-white/[0.04] hover:text-foreground"
+          title="Sign out"
+        >
+          <LogOut className="h-[16px] w-[16px]" strokeWidth={1.8} />
         </button>
 
         <div className="relative">
           <Avatar className="h-7 w-7 border border-border">
             <AvatarFallback className="bg-white/[0.06] text-[11px] font-medium text-foreground/70">
-              NK
+              {initials}
             </AvatarFallback>
           </Avatar>
           <span className="absolute -bottom-px -right-px h-[9px] w-[9px] rounded-full border-[1.5px] border-background bg-emerald-500" />

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Inbox,
@@ -19,19 +18,27 @@ interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
   onCompose: () => void;
+  activeFolder: string;
+  onFolderChange: (folder: string) => void;
+  folderCounts: Record<string, number>;
 }
 
 const navItems = [
-  { icon: Inbox, label: "Inbox", count: 12 },
-  { icon: Send, label: "Sent", count: 0 },
-  { icon: FileEdit, label: "Drafts", count: 3 },
-  { icon: Users, label: "Shared", count: 5 },
-  { icon: Sparkles, label: "AI Insights", count: 0 },
+  { icon: Inbox, label: "Inbox" },
+  { icon: Send, label: "Sent" },
+  { icon: FileEdit, label: "Drafts" },
+  { icon: Users, label: "Shared" },
+  { icon: Sparkles, label: "AI Insights" },
 ];
 
-export function Sidebar({ collapsed, onToggle, onCompose }: SidebarProps) {
-  const [activeItem, setActiveItem] = useState("Inbox");
-
+export function Sidebar({
+  collapsed,
+  onToggle,
+  onCompose,
+  activeFolder,
+  onFolderChange,
+  folderCounts,
+}: SidebarProps) {
   return (
     <motion.aside
       animate={{ width: collapsed ? 64 : 240 }}
@@ -95,11 +102,12 @@ export function Sidebar({ collapsed, onToggle, onCompose }: SidebarProps) {
       <nav className="mt-3 flex-1 space-y-0.5 px-2">
         {navItems.map((navItem) => {
           const Icon = navItem.icon;
-          const isActive = activeItem === navItem.label;
+          const isActive = activeFolder === navItem.label;
+          const count = folderCounts[navItem.label] ?? 0;
           return (
             <button
               key={navItem.label}
-              onClick={() => setActiveItem(navItem.label)}
+              onClick={() => onFolderChange(navItem.label)}
               className={cn(
                 "group relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-[7px] text-[13px] transition-colors duration-150",
                 isActive
@@ -121,16 +129,14 @@ export function Sidebar({ collapsed, onToggle, onCompose }: SidebarProps) {
                   </motion.span>
                 )}
               </AnimatePresence>
-              {!collapsed && navItem.count > 0 && (
+              {!collapsed && count > 0 && (
                 <span
                   className={cn(
                     "min-w-[20px] text-right text-xs tabular-nums",
-                    isActive
-                      ? "text-foreground/60"
-                      : "text-muted-foreground"
+                    isActive ? "text-foreground/60" : "text-muted-foreground"
                   )}
                 >
-                  {navItem.count}
+                  {count}
                 </span>
               )}
             </button>
